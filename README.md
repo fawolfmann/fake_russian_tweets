@@ -43,5 +43,9 @@ For this reason its used BERT model as a text classification problem, so it is a
 ### Developing tools
 - Poetry (dependencies and environment management)
 - CI: github workflow, nox, black, pylint, isort, pre-commit.
+- Gitflow.
+- Pytests for testing
 
+## Installation
 
+## How to use it

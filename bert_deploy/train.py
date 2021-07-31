@@ -6,9 +6,9 @@ from transformers import DistilBertForSequenceClassification, Trainer, TrainingA
 
 from bert_deploy.configs import read_config
 from bert_deploy.datasets.base import BaseBERTDataset
-from bert_deploy.datasets.covid_tweets import CovidDataset
-from bert_deploy.extractors.base import BaseBERTExtractPrepoc
-from bert_deploy.extractors.csv import CSVExtractor
+from bert_deploy.datasets.fake_tweets import FakeTweetsDataset
+from bert_deploy.extractors.base import BaseBERTExtractPrepocTrain
+from bert_deploy.extractors.csv import FakeTweetsExtractorTrain
 from bert_deploy.utils import store_any
 
 
@@ -23,7 +23,7 @@ from bert_deploy.utils import store_any
     "--output_path", type=click.STRING, default="./data/", help="Path to output file"
 )
 def train(config_path: str, output_path: str):
-    """Main function to implement Bert Deploy.
+    """Main function to implement Bert Training.
     from https://huggingface.co/transformers/custom_datasets.html
 
     Parameters
@@ -33,23 +33,25 @@ def train(config_path: str, output_path: str):
     output_path : str
         path to where store the output.
     """
-    extractor: BaseBERTExtractPrepoc
+    extractor: BaseBERTExtractPrepocTrain
     train_dataset: BaseBERTDataset
     val_dataset: BaseBERTDataset
     configs = read_config(config_path)
     url = ""
 
     if configs["extractor_type"] == "csv":
-        extractor = CSVExtractor(**configs["extractor_config"])
-        url = configs.get("extractor_url", "")
+        extractor = FakeTweetsExtractorTrain(**configs["extractor_config"])
+        url = configs.get("extractor_", "")
 
     tensor = extractor.extract_preprocess(url)
     store_name = configs["extractor_type"] + "_" + url.replace("/", "_")
     store_any(tensor, output_path, store_name)
 
     if configs["problem_type"] == "covid_tweets":
-        train_dataset = CovidDataset(tensor.train_inputs, tensor.train_labels)
-        val_dataset = CovidDataset(tensor.validation_inputs, tensor.validation_labels)
+        train_dataset = FakeTweetsDataset(tensor.train_inputs, tensor.train_labels)
+        val_dataset = FakeTweetsDataset(
+            tensor.validation_inputs, tensor.validation_labels
+        )
 
     num_labels = len(np.unique(tensor.train_labels))
     model = DistilBertForSequenceClassification.from_pretrained(

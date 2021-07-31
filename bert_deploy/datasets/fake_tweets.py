@@ -4,10 +4,8 @@ from typing import List
 import torch
 from transformers.tokenization_utils_base import BatchEncoding
 
-from bert_deploy.datasets.base import BaseBERTDataset
 
-
-class CovidDataset(BaseBERTDataset):
+class FakeTweetsDataset(torch.utils.data.Dataset):
     def __init__(self, encodings: BatchEncoding, labels: List):
         self.encodings = encodings
         self.labels = labels

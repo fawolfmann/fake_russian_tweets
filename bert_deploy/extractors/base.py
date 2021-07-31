@@ -2,7 +2,7 @@
 from abc import ABC
 import logging
 import os
-from typing import Any, List, NamedTuple, Optional, Tuple, Union
+from typing import Any, List, NamedTuple, Tuple, Union
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -21,18 +21,15 @@ class TokenizedTensor(NamedTuple):
     validation_labels: np.array
 
 
-class BaseBERTExtractPrepoc(ABC):
+class BaseBERTExtractPrepocTrain(ABC):
     def __init__(
         self,
         pretrained_model_name_or_path: Union[str, os.PathLike],
         sentence_col: str,
         labels_col: str,
-        auth_username: Optional[str] = None,
-        auth_key: Optional[str] = None,
         split_test_size: float = 0.1,
         cache_path: Union[str, os.PathLike] = "/tmp/bert_deploy",
         read_cache: bool = False,
-        training: bool = False,
     ):
         """Base class to extract BERT classification data from any datasource.
 
@@ -57,9 +54,8 @@ class BaseBERTExtractPrepoc(ABC):
         self.test_size = split_test_size
         self.cache_path = cache_path
         self.read_cache = read_cache
-        self.training = training
 
-    def extract_preprocess(self, url: str) -> TokenizedTensor:
+    def extract_preprocess(self, path: str) -> TokenizedTensor:
         """Extract and preprocess data, for BERT tasks.
         The pipelines is:
             - extract_raw (here we read it from or set the cache)
@@ -68,27 +64,27 @@ class BaseBERTExtractPrepoc(ABC):
 
         Parameters
         ----------
-        url : str
-            url to extract data from.
+        path : str
+            path to extract data from to preprocess.
 
         Returns
         -------
         TokenizedTensor
             Extracted and preprocessed data to consume BERT model.
         """
-        extracted = self.extract_raw(url)
+        extracted = self.extract_raw(path)
         sentences, labels = self.preprocess(extracted)
 
-        return self.bert_tokenizer(sentences, labels)
+        return self.bert_tokenizer_training(sentences, labels)
 
-    def extract_raw(self, url: str) -> Any:
+    def extract_raw(self, url_or_path: str) -> Any:
         """Extract raw data from a url.
         If data is cached return cache if not it will download it.
 
         Parameters
         ----------
-        url : str
-            url to extract data from.
+        url_or_path : str
+            url_or_path to extract data from.
 
         Returns
         -------
@@ -111,9 +107,9 @@ class BaseBERTExtractPrepoc(ABC):
             - sentences: preprocessed sentences.
             - labels: preprocessed labels.
         """
-        return (extracted_raw[self.sentence_col], extracted_raw[self.labels_col])
+        return extracted_raw[0], extracted_raw[1]
 
-    def bert_tokenizer(self, sentences: List, labels: List) -> TokenizedTensor:
+    def bert_tokenizer_training(self, sentences: List, labels: List) -> TokenizedTensor:
         """Map the given text to their IDs, prepend the `[CLS]` token to the start,
         append the `[SEP]` token to the end, pad or truncate the sentence to the max text length,
         and create attention masks for [PAD] tokens.
@@ -190,16 +186,8 @@ class BaseBERTExtractPrepoc(ABC):
             - labels : np.array processed labels
 
         """
-        tokenized = tokenizer(
-            sentences,
-            add_special_tokens=True,
-            max_length=max_length,
-            padding="max_length",
-            truncation=True,
-            return_attention_mask=True,
-            return_tensors="pt",
-        )
 
+        tokenized = _tokenize(tokenizer, sentences, max_length)
         labels = self.process_labels(labels, tokenized)
 
         return tokenized, labels
@@ -219,17 +207,13 @@ class BaseBERTExtractPrepoc(ABC):
         """
         return (number + 7) & (-8)
 
-    def process_labels(
-        self, labels: List, tokenized_sentences: BatchEncoding
-    ) -> np.array:
+    def process_labels(self, labels: List) -> np.array:
         """Process labels if needed.
 
         Parameters
         ----------
         labels : List
             labels to process
-        words_ids : List
-            id of each token corresponding to a label.
 
         Returns
         -------
@@ -237,3 +221,63 @@ class BaseBERTExtractPrepoc(ABC):
             processed labels in as numpy.array.
         """
         return np.array(labels)
+
+    # class
+    #
+    #        else:
+    #            preprocessed_string = self.preprocess(path_or_string)
+    #            return self.bert_tokenizer_predict(preprocessed_string, max_length)
+
+    # def bert_tokenizer_predict(self, sentence: str, max_length: int) -> BatchEncoding:
+    #     """Tokenizer for prediction time.
+
+    #     Parameters
+    #     ----------
+    #     sentence : str
+    #         sentence to tokenize.
+    #     max_length : int
+    #         max length of the encoded sentences.
+
+    #     Returns
+    #     -------
+    #     BatchEncoding
+    #         tokenized sentence to predict with BERT model.
+    #     """
+    #     logger.info("Pretrained model name: %s", self.pretrained_model_name_or_path)
+    #     tokenizer = AutoTokenizer.from_pretrained(
+    #         self.pretrained_model_name_or_path, do_lower_case=True, use_fast=True,
+    #     )
+
+    #     return self._tokenize(tokenizer, sentence, max_length)
+
+
+def _tokenize(
+    tokenizer: PreTrainedTokenizerBase,
+    sentences: Union[List[str], str],
+    max_length: int,
+) -> BatchEncoding:
+    """Helper function to tokenize a sentence o list of sentences.
+
+    Parameters
+    ----------
+    tokenizer : PreTrainedTokenizerBase
+        list of sentences to tokenize.
+    sentences : Union[List[str], str]
+        sentences or sentence to tokenize
+    max_length : int
+        max_length of the encoding sentences.
+
+    Returns
+    -------
+    BatchEncoding
+        tokenized sentences to use with BERT model.
+    """
+    return tokenizer(
+        sentences,
+        add_special_tokens=True,
+        max_length=max_length,
+        padding="max_length",
+        truncation=True,
+        return_attention_mask=True,
+        return_tensors="np",
+    )

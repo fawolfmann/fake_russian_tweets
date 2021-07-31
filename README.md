@@ -1,12 +1,12 @@
 # Fake Russian Tweets
-Fake Russian tweets analysis and prediction. 
+Fake Russian tweets analysis and prediction.
 
 In this repo you will find an analysis and predicition model of the fake russian tweets published by [NBC](https://www.nbcnews.com/tech/social-media/now-available-more-200-000-deleted-russian-troll-tweets-n844731)
 
 The data is contains two parts, [tweets](http://nodeassets.nbcnews.com/russian-twitter-trolls/tweets.csv) and [users](http://nodeassets.nbcnews.com/russian-twitter-trolls/users.csv).
 
 ## Exploratory data analysis
-There is a [notebook] with all the analysis. and the conclusion on how to create a model. 
+There is a [notebook] with all the analysis. and the conclusion on how to create a model.
 
 
 ## Objective
@@ -18,7 +18,7 @@ For this reason its used BERT model as a text classification problem, so it is a
 
 ### Bert Tokenization
 
-### Train 
+### Train
 
 ### Store best model
 
@@ -27,7 +27,7 @@ For this reason its used BERT model as a text classification problem, so it is a
 
 ### Bert Tokenization
 
-### Predict 
+### Predict
 
 ### Show the results and plot
 
@@ -40,8 +40,12 @@ For this reason its used BERT model as a text classification problem, so it is a
 - SHAP for BERT
 - Docker & docker-compose
 
-### Developing tools 
+### Developing tools
 - Poetry (dependencies and environment management)
-- CI: github workflow, nox, black, pylint.
+- CI: github workflow, nox, black, pylint, isort, pre-commit.
+- Gitflow.
+- Pytests for testing
 
+## Installation
 
+## How to use it

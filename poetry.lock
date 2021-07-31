@@ -679,6 +679,7 @@ numpy = "*"
 [package.source]
 type = "url"
 url = "https://download.pytorch.org/whl/cpu/torch-1.5.1%2Bcpu-cp38-cp38-linux_x86_64.whl"
+
 [[package]]
 name = "tqdm"
 version = "4.62.0"
@@ -815,7 +816,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "eb4e782f00bac5d79ba0ec74103ff6c4bfdb317e07a13bdc87865fdfeb9503ec"
+content-hash = "c1f65a2ca9d1bb793f20faf1b3145a28aba8feeba6709ffeb2aa607e25529e69"
 
 [metadata.files]
 appdirs = [

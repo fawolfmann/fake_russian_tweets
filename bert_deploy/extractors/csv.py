@@ -41,7 +41,11 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
         with open(url_or_paths[1], mode="r", errors="ignore") as csv_file:
             loaded_dict_fake = list(csv.DictReader(csv_file, dialect="unix"))
 
-        logger.info("Extraction successfull")
+        logger.info(
+            "Extraction successfull read from %s and %s",
+            url_or_paths[0],
+            url_or_paths[1],
+        )
         return loaded_dict_authentic, loaded_dict_fake
 
     def preprocess(self, extracted_data: Tuple[List, List]) -> Tuple[List, List]:
@@ -59,23 +63,35 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
             - list of raw words.
             - list of raw labels.
         """
-        sentences = []
-        labels = []
+        sentences_authentic = []
+        labels_authentic = []
+        sentences_fake = []
+        labels_fake = []
         for raw in extracted_data[0]:
-            tweet = filter_non_english_words(raw.get("text", ""))
+            tweet = filter_non_english_words(raw.get("OriginalTweet", ""))
             if tweet:
-                sentences.append(tweet)
-                labels.append(FAKE_TWEETS_LABLES_MAP.get("authentic"))
+                sentences_authentic.append(tweet)
+                labels_authentic.append(FAKE_TWEETS_LABLES_MAP.get("authentic"))
 
         for raw in extracted_data[1]:
             tweet = filter_non_english_words(raw.get(self.sentence_col, ""))
             if tweet:
-                sentences.append(tweet)
-                labels.append(FAKE_TWEETS_LABLES_MAP.get("fake"))
+                sentences_fake.append(tweet)
+                labels_fake.append(FAKE_TWEETS_LABLES_MAP.get("fake"))
 
-        logger.info("Preproccessed dataframe")
+        if not len(sentences_authentic) == len(labels_authentic):
+            raise ValueError("Length of authentic labels and sentences mismatch")
+        if not len(sentences_fake) == len(labels_fake):
+            raise ValueError("Length of fake labels and sentences mismatch")
+        logger.info(
+            "Preproccessed data: %s fake tweets, %s authentic tweets",
+            len(sentences_fake),
+            len(sentences_authentic),
+        )
+        sentences_authentic.extend(sentences_fake)
+        labels_authentic.extend(labels_fake)
 
-        return sentences, labels
+        return sentences_authentic, labels_authentic
 
     def process_labels(self, labels: List) -> np.array:
         """Process labels as in this problem the labels are numbers from 1 to 5.
@@ -94,7 +110,7 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
         return np.array(labels).astype(int)
 
 
-def filter_non_english_words(word: str) -> Union[str, None]:
+def filter_non_english_words(word_input: str) -> Union[str, None]:
     """Remove non english words like emojis or russian letters.
     In order to use english version of bert we need it.
 
@@ -103,7 +119,7 @@ def filter_non_english_words(word: str) -> Union[str, None]:
 
     Parameters
     ----------
-    word : str
+    word_input : str
         word to filter
 
     Returns
@@ -111,8 +127,10 @@ def filter_non_english_words(word: str) -> Union[str, None]:
     [str, None]
         if word contains letter return word else None.
     """
-    word = "".join(filter(lambda x: x in string.printable, word))
+
+    word = "".join(filter(lambda x: x in string.printable, word_input))
     if len(re.findall("\w+", word)) > 0:
         return word
     else:
+        logger.warning("Removed word %s", word_input)
         return None

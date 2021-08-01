@@ -51,9 +51,3 @@ def _validate_config(config: Dict):
         error_message = f"Unknown problem type, knows {KNOWN_PROBLEM_TYPES}"
         logger.error(error_message)
         raise ValueError(error_message)
-
-    # elif config.get("extractor_type") == REVIEWS_CONFIG_TYPE:
-    #    if config.get("extractor_url") not in KNOWN_REVIEWS_URLS:
-    #        error_message = f"Unknown extractor type, knows {KNOWN_REVIEWS_URLS}"
-    #        logger.error(error_message)
-    #        raise ValueError(error_message)

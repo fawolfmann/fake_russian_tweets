@@ -38,6 +38,7 @@ def train(config_path: str, output_path: str):
     output_path : str
         path to where store the output.
     """
+    logger.info("Starting Train process")
     extractor: BaseBERTExtractPrepocTrain
     train_dataset: BaseBERTDataset
     val_dataset: BaseBERTDataset
@@ -80,6 +81,7 @@ def train(config_path: str, output_path: str):
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()
+    logger.info("Finished Train process")
 
 
 if __name__ == "__main__":

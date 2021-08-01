@@ -1,8 +1,11 @@
 """Main file CLI for use this package, and usage example."""
 
+import logging
+
 import click
 import numpy as np
 from transformers import DistilBertForSequenceClassification, Trainer, TrainingArguments
+from transformers.trainer_utils import get_last_checkpoint
 
 from bert_deploy.configs import read_config
 from bert_deploy.datasets.base import BaseBERTDataset
@@ -10,6 +13,8 @@ from bert_deploy.datasets.fake_tweets import FakeTweetsDataset
 from bert_deploy.extractors.base import BaseBERTExtractPrepocTrain
 from bert_deploy.extractors.csv import FakeTweetsExtractorTrain
 from bert_deploy.utils import store_any
+
+logger = logging.getLogger(__name__)
 
 
 @click.command()
@@ -41,13 +46,12 @@ def train(config_path: str, output_path: str):
 
     if configs["extractor_type"] == "csv":
         extractor = FakeTweetsExtractorTrain(**configs["extractor_config"])
-        url = configs.get("extractor_", "")
-
-    tensor = extractor.extract_preprocess(url)
+        logger.info("Created FakeTweetsExtractorTrain")
+    tensor = extractor.extract_preprocess(url_or_paths=configs["url_or_paths"])
     store_name = configs["extractor_type"] + "_" + url.replace("/", "_")
     store_any(tensor, output_path, store_name)
 
-    if configs["problem_type"] == "covid_tweets":
+    if configs["problem_type"] == "russian_fake_tweets":
         train_dataset = FakeTweetsDataset(tensor.train_inputs, tensor.train_labels)
         val_dataset = FakeTweetsDataset(
             tensor.validation_inputs, tensor.validation_labels
@@ -68,9 +72,14 @@ def train(config_path: str, output_path: str):
         eval_dataset=val_dataset,
     )
 
-    trainer.train()
-    model_name = "trained_distil_bert_covid_tweets"
-    store_any(model, output_path, model_name)
+    last_checkpoint = get_last_checkpoint(training_args.output_dir)
+    train_result = trainer.train(resume_from_checkpoint=last_checkpoint)
+    metrics = train_result.metrics
+    trainer.save_model()
+
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
 
 
 if __name__ == "__main__":

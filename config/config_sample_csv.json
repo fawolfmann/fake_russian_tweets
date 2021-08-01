@@ -1,14 +1,16 @@
 {
     "extractor_type": "csv",
-    "pretrained_model_name_or_path": "distilbert-base-uncased",
     "extractor_config": {
+        "pretrained_model_name_or_path": "distilbert-base-uncased",
         "sentence_col": "text",
         "labels_col": "label",
         "cache_path": "./data/csv/",
-        "read_cache": false,
-        "extractor_path_authentic": "../../bert_extras/covid_tweets/Corona_NLP_train.csv",
-        "extractor_path_fake": "../../bert_extras/covid_tweets/Corona_NLP_train.csv"
+        "read_cache": false
     },
+    "url_or_paths": [
+        "../bert_extras/covid_tweets/Corona_NLP_train.csv",
+        "../bert_extras/fake_tweets/tweets500.csv"
+    ],
     "problem_type": "russian_fake_tweets",
     "train_arguments": {
         "output_dir": "./results",

@@ -1,14 +1,14 @@
 """Constants file"""
 # COVID sentiment analysis
-COVID_TWEETS_LABLES_MAP = {
-    "Neutral": 0,
-    "Positive": 1,
-    "Extremely Negative": 2,
-    "Negative": 3,
-    "Extremely Positive": 4,
+FAKE_TWEETS_LABLES_MAP = {
+    "authentic": 0,
+    "fake": 1,
 }
 
 # Configs
 
 CSV_CONFIG_TYPE = "csv"
 KNOWN_CONFIGS_TYPES = [CSV_CONFIG_TYPE]
+
+RUSSIAN_TWEETS_PROBLEM_TYPE = "russian_fake_tweets"
+KNOWN_PROBLEM_TYPES = [RUSSIAN_TWEETS_PROBLEM_TYPE]

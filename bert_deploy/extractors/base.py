@@ -55,7 +55,9 @@ class BaseBERTExtractPrepocTrain(ABC):
         self.cache_path = cache_path
         self.read_cache = read_cache
 
-    def extract_preprocess(self, path: str) -> TokenizedTensor:
+    def extract_preprocess(
+        self, url_or_paths: Union[str, List[str]]
+    ) -> TokenizedTensor:
         """Extract and preprocess data, for BERT tasks.
         The pipelines is:
             - extract_raw (here we read it from or set the cache)
@@ -64,7 +66,7 @@ class BaseBERTExtractPrepocTrain(ABC):
 
         Parameters
         ----------
-        path : str
+        url_or_paths : Union[str, List[str]]
             path to extract data from to preprocess.
 
         Returns
@@ -72,19 +74,19 @@ class BaseBERTExtractPrepocTrain(ABC):
         TokenizedTensor
             Extracted and preprocessed data to consume BERT model.
         """
-        extracted = self.extract_raw(path)
+        extracted = self.extract_raw(url_or_paths)
         sentences, labels = self.preprocess(extracted)
 
         return self.bert_tokenizer_training(sentences, labels)
 
-    def extract_raw(self, url_or_path: str) -> Any:
+    def extract_raw(self, url_or_paths: Union[str, List[str]]) -> Any:
         """Extract raw data from a url.
         If data is cached return cache if not it will download it.
 
         Parameters
         ----------
-        url_or_path : str
-            url_or_path to extract data from.
+        url_or_path :  Union[str, List[str]]
+            url_or_path/s to extract data from.
 
         Returns
         -------
@@ -186,9 +188,9 @@ class BaseBERTExtractPrepocTrain(ABC):
             - labels : np.array processed labels
 
         """
-
         tokenized = _tokenize(tokenizer, sentences, max_length)
-        labels = self.process_labels(labels, tokenized)
+        logger.info("Tokenized input")
+        labels = self.process_labels(labels)
 
         return tokenized, labels
 

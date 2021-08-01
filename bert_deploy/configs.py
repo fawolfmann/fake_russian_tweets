@@ -4,13 +4,7 @@ import logging
 import os
 from typing import Dict, Union
 
-from bert_deploy.constants import (
-    KNOWN_CONFIGS_TYPES,
-    KNOWN_NER_URLS,
-    KNOWN_REVIEWS_URLS,
-    NER_CONFIG_TYPE,
-    REVIEWS_CONFIG_TYPE,
-)
+from bert_deploy.constants import KNOWN_CONFIGS_TYPES, KNOWN_PROBLEM_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +47,13 @@ def _validate_config(config: Dict):
         logger.error(error_message)
         raise ValueError(error_message)
 
-    if config.get("extractor_type") == NER_CONFIG_TYPE:
-        if config.get("extractor_url") not in KNOWN_NER_URLS:
-            error_message = f"Unknown extractor type, knows {KNOWN_NER_URLS}"
-            logger.error(error_message)
-            raise ValueError(error_message)
+    if config.get("problem_type") not in KNOWN_PROBLEM_TYPES:
+        error_message = f"Unknown problem type, knows {KNOWN_PROBLEM_TYPES}"
+        logger.error(error_message)
+        raise ValueError(error_message)
 
-    elif config.get("extractor_type") == REVIEWS_CONFIG_TYPE:
-        if config.get("extractor_url") not in KNOWN_REVIEWS_URLS:
-            error_message = f"Unknown extractor type, knows {KNOWN_REVIEWS_URLS}"
-            logger.error(error_message)
-            raise ValueError(error_message)
+    # elif config.get("extractor_type") == REVIEWS_CONFIG_TYPE:
+    #    if config.get("extractor_url") not in KNOWN_REVIEWS_URLS:
+    #        error_message = f"Unknown extractor type, knows {KNOWN_REVIEWS_URLS}"
+    #        logger.error(error_message)
+    #        raise ValueError(error_message)

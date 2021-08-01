@@ -8,8 +8,10 @@ from typing import List, Tuple, Union
 
 import numpy as np
 
+from bert_deploy.constants import FAKE_TWEETS_LABLES_MAP
 from bert_deploy.extractors.base import BaseBERTExtractPrepocTrain
-from bert_deploy.utils import cache_extract_raw
+
+# from bert_deploy.utils import cache_extract_raw
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +19,15 @@ logger = logging.getLogger(__name__)
 class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
     """Extractor for Amazon Reviews"""
 
-    @cache_extract_raw()
-    def extract_raw(
-        self, local_path_authentic: str, local_path_fake: str
-    ) -> Tuple[List, List]:
+    # @cache_extract_raw()
+    def extract_raw(self, url_or_paths: List[str]) -> Tuple[List, List]:
         """Read the text and labels from a csv file.
 
         Parameters
         ----------
-        local_path_authentic : str
-            local_path_authentic for .csv file to extract the authentic tweets.
-        local_path_fake : str
-            local_path_fake for .csv file to extract the fake tweets.
+        url_or_paths : List[str]
+            - local_path_authentic for .csv file to extract the authentic tweets.
+            - local_path_fake for .csv file to extract the fake tweets.
 
         Returns
         -------
@@ -36,10 +35,10 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
             - list with the data extracted authentic tweets.
             - list with the data extracted fake tweets.
         """
-        with open(local_path_authentic, mode="r", errors="ignore") as csv_file:
+        with open(url_or_paths[0], mode="r", errors="ignore") as csv_file:
             loaded_dict_authentic = list(csv.DictReader(csv_file, dialect="unix"))
 
-        with open(local_path_fake, mode="r", errors="ignore") as csv_file:
+        with open(url_or_paths[1], mode="r", errors="ignore") as csv_file:
             loaded_dict_fake = list(csv.DictReader(csv_file, dialect="unix"))
 
         logger.info("Extraction successfull")
@@ -66,13 +65,13 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
             tweet = filter_non_english_words(raw.get("text", ""))
             if tweet:
                 sentences.append(tweet)
-                labels.append("authentic")
+                labels.append(FAKE_TWEETS_LABLES_MAP.get("authentic"))
 
         for raw in extracted_data[1]:
             tweet = filter_non_english_words(raw.get(self.sentence_col, ""))
             if tweet:
                 sentences.append(tweet)
-                labels.append("fake")
+                labels.append(FAKE_TWEETS_LABLES_MAP.get("fake"))
 
         logger.info("Preproccessed dataframe")
 

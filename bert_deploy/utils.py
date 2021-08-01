@@ -6,8 +6,6 @@ from pathlib import Path
 import pickle
 from typing import Any, Union
 
-from bert_deploy.extractors.base import TokenizedTensor
-
 logger = logging.getLogger(__name__)
 
 
@@ -56,12 +54,12 @@ def from_pickle(filepath: Union[str, Path]):
     return result
 
 
-def store_any(object: Any, output_path: str, name: str):
+def store_any(obj: Any, output_path: str, name: str):
     """Store the output into a pickle object in the given path.
 
     Parameters
     ----------
-    object : Any
+    obj : Any
         object to store.
     output_path : str
         path to store the pickled object.
@@ -69,4 +67,4 @@ def store_any(object: Any, output_path: str, name: str):
     Path.mkdir(Path(output_path), exist_ok=True, parents=True)
 
     output_filepath = Path(output_path) / f"{name}_bert_extraction_tensor.pkl"
-    to_pickle(output_filepath, object)
+    to_pickle(output_filepath, obj)

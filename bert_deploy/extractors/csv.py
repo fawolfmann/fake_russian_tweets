@@ -2,16 +2,13 @@
 
 import csv
 import logging
-import re
-import string
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 import numpy as np
 
-from bert_deploy.constants import FAKE_TWEETS_LABLES_MAP
+from bert_deploy.constants import FAKE_TWEETS_LABLES2ID
 from bert_deploy.extractors.base import BaseBERTExtractPrepocTrain
-
-# from bert_deploy.utils import cache_extract_raw
+from bert_deploy.utils import filter_non_english_words  # cache_extract_raw,
 
 logger = logging.getLogger(__name__)
 
@@ -71,13 +68,13 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
             tweet = filter_non_english_words(raw.get("OriginalTweet", ""))
             if tweet:
                 sentences_authentic.append(tweet)
-                labels_authentic.append(FAKE_TWEETS_LABLES_MAP.get("authentic"))
+                labels_authentic.append(FAKE_TWEETS_LABLES2ID.get("authentic"))
 
         for raw in extracted_data[1]:
             tweet = filter_non_english_words(raw.get(self.sentence_col, ""))
             if tweet:
                 sentences_fake.append(tweet)
-                labels_fake.append(FAKE_TWEETS_LABLES_MAP.get("fake"))
+                labels_fake.append(FAKE_TWEETS_LABLES2ID.get("fake"))
 
         if not len(sentences_authentic) == len(labels_authentic):
             raise ValueError("Length of authentic labels and sentences mismatch")
@@ -108,29 +105,3 @@ class FakeTweetsExtractorTrain(BaseBERTExtractPrepocTrain):
             processed labels in as numpy.array.
         """
         return np.array(labels).astype(int)
-
-
-def filter_non_english_words(word_input: str) -> Union[str, None]:
-    """Remove non english words like emojis or russian letters.
-    In order to use english version of bert we need it.
-
-    Note: string.printable contains:
-    0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c
-
-    Parameters
-    ----------
-    word_input : str
-        word to filter
-
-    Returns
-    -------
-    [str, None]
-        if word contains letter return word else None.
-    """
-
-    word = "".join(filter(lambda x: x in string.printable, word_input))
-    if len(re.findall("\w+", word)) > 0:
-        return word
-    else:
-        logger.warning("Removed word %s", word_input)
-        return None

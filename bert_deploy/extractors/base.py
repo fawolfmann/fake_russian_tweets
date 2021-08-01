@@ -9,6 +9,8 @@ from sklearn.model_selection import train_test_split
 from transformers import AutoTokenizer
 from transformers.tokenization_utils_base import BatchEncoding, PreTrainedTokenizerBase
 
+from bert_deploy.utils import tokenize
+
 logger = logging.getLogger(__name__)
 
 
@@ -188,7 +190,7 @@ class BaseBERTExtractPrepocTrain(ABC):
             - labels : np.array processed labels
 
         """
-        tokenized = _tokenize(tokenizer, sentences, max_length)
+        tokenized = tokenize(tokenizer, sentences, max_length, "np")
         logger.info("Tokenized input")
         labels = self.process_labels(labels)
 
@@ -223,63 +225,3 @@ class BaseBERTExtractPrepocTrain(ABC):
             processed labels in as numpy.array.
         """
         return np.array(labels)
-
-    # class
-    #
-    #        else:
-    #            preprocessed_string = self.preprocess(path_or_string)
-    #            return self.bert_tokenizer_predict(preprocessed_string, max_length)
-
-    # def bert_tokenizer_predict(self, sentence: str, max_length: int) -> BatchEncoding:
-    #     """Tokenizer for prediction time.
-
-    #     Parameters
-    #     ----------
-    #     sentence : str
-    #         sentence to tokenize.
-    #     max_length : int
-    #         max length of the encoded sentences.
-
-    #     Returns
-    #     -------
-    #     BatchEncoding
-    #         tokenized sentence to predict with BERT model.
-    #     """
-    #     logger.info("Pretrained model name: %s", self.pretrained_model_name_or_path)
-    #     tokenizer = AutoTokenizer.from_pretrained(
-    #         self.pretrained_model_name_or_path, do_lower_case=True, use_fast=True,
-    #     )
-
-    #     return self._tokenize(tokenizer, sentence, max_length)
-
-
-def _tokenize(
-    tokenizer: PreTrainedTokenizerBase,
-    sentences: Union[List[str], str],
-    max_length: int,
-) -> BatchEncoding:
-    """Helper function to tokenize a sentence o list of sentences.
-
-    Parameters
-    ----------
-    tokenizer : PreTrainedTokenizerBase
-        list of sentences to tokenize.
-    sentences : Union[List[str], str]
-        sentences or sentence to tokenize
-    max_length : int
-        max_length of the encoding sentences.
-
-    Returns
-    -------
-    BatchEncoding
-        tokenized sentences to use with BERT model.
-    """
-    return tokenizer(
-        sentences,
-        add_special_tokens=True,
-        max_length=max_length,
-        padding="max_length",
-        truncation=True,
-        return_attention_mask=True,
-        return_tensors="np",
-    )

@@ -44,6 +44,9 @@ include_trailing_comma = true
 [tool.pylint.format]
 max-line-length = 88
 
+[tool.pylint.typecheck]
+generated-members = ["numpy.*","torch.*",]
+
 [tool.pylint.messages_control]
 disable = [
   "C",

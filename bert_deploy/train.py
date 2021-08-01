@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
     "--config_path",
     type=click.STRING,
     help="Path to config file",
-    default="./config/config_sample_csv.json",
+    default="./config/config_sample_fake_tweets_train.json",
 )
 @click.option(
     "--output_path", type=click.STRING, default="./data/", help="Path to output file"

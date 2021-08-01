@@ -4,9 +4,11 @@ from hashlib import sha256
 import logging
 from pathlib import Path
 import pickle
-from typing import Any, Union
+import re
+import string
+from typing import Any, List, Union
 
-from bert_deploy.extractors.base import TokenizedTensor
+from transformers.tokenization_utils_base import BatchEncoding, PreTrainedTokenizerBase
 
 logger = logging.getLogger(__name__)
 
@@ -56,12 +58,12 @@ def from_pickle(filepath: Union[str, Path]):
     return result
 
 
-def store_any(object: Any, output_path: str, name: str):
+def store_any(obj: Any, output_path: str, name: str):
     """Store the output into a pickle object in the given path.
 
     Parameters
     ----------
-    object : Any
+    obj : Any
         object to store.
     output_path : str
         path to store the pickled object.
@@ -69,4 +71,65 @@ def store_any(object: Any, output_path: str, name: str):
     Path.mkdir(Path(output_path), exist_ok=True, parents=True)
 
     output_filepath = Path(output_path) / f"{name}_bert_extraction_tensor.pkl"
-    to_pickle(output_filepath, object)
+    to_pickle(output_filepath, obj)
+
+
+def filter_non_english_words(word_input: str) -> Union[str, None]:
+    """Remove non english words like emojis or russian letters.
+    In order to use english version of bert we need it.
+
+    Note: string.printable contains:
+    0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c
+
+    Parameters
+    ----------
+    word_input : str
+        word to filter
+
+    Returns
+    -------
+    [str, None]
+        if word contains letter return word else None.
+    """
+
+    word = "".join(filter(lambda x: x in string.printable, word_input))
+    if len(re.findall("\w+", word)) > 0:
+        return word
+    else:
+        logger.warning("Removed word %s", word_input)
+        return None
+
+
+def tokenize(
+    tokenizer: PreTrainedTokenizerBase,
+    sentences: Union[List[str], str],
+    max_length: int,
+    tensor_type: str,
+) -> BatchEncoding:
+    """Helper function to tokenize a sentence o list of sentences.
+
+    Parameters
+    ----------
+    tokenizer : PreTrainedTokenizerBase
+        list of sentences to tokenize.
+    sentences : Union[List[str], str]
+        sentences or sentence to tokenize
+    max_length : int
+        max_length of the encoding sentences.
+    tensor_type: str
+        output tensor type can be: pt (PyTorch), np (Numpy) or tf (TensorFlow)
+
+    Returns
+    -------
+    BatchEncoding
+        tokenized sentences to use with BERT model.
+    """
+    return tokenizer(
+        sentences,
+        add_special_tokens=True,
+        max_length=max_length,
+        padding="max_length",
+        truncation=True,
+        return_attention_mask=True,
+        return_tensors=tensor_type,
+    )

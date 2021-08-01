@@ -6,7 +6,9 @@ from pathlib import Path
 import pickle
 import re
 import string
-from typing import Any, Union
+from typing import Any, List, Union
+
+from transformers.tokenization_utils_base import BatchEncoding, PreTrainedTokenizerBase
 
 logger = logging.getLogger(__name__)
 
@@ -96,3 +98,38 @@ def filter_non_english_words(word_input: str) -> Union[str, None]:
     else:
         logger.warning("Removed word %s", word_input)
         return None
+
+
+def tokenize(
+    tokenizer: PreTrainedTokenizerBase,
+    sentences: Union[List[str], str],
+    max_length: int,
+    tensor_type: str,
+) -> BatchEncoding:
+    """Helper function to tokenize a sentence o list of sentences.
+
+    Parameters
+    ----------
+    tokenizer : PreTrainedTokenizerBase
+        list of sentences to tokenize.
+    sentences : Union[List[str], str]
+        sentences or sentence to tokenize
+    max_length : int
+        max_length of the encoding sentences.
+    tensor_type: str
+        output tensor type can be: pt (PyTorch), np (Numpy) or tf (TensorFlow)
+
+    Returns
+    -------
+    BatchEncoding
+        tokenized sentences to use with BERT model.
+    """
+    return tokenizer(
+        sentences,
+        add_special_tokens=True,
+        max_length=max_length,
+        padding="max_length",
+        truncation=True,
+        return_attention_mask=True,
+        return_tensors=tensor_type,
+    )

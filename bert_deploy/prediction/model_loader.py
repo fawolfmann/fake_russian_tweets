@@ -5,8 +5,8 @@ import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, DistilBertForSequenceClassification
 
-from bert_deploy.constants import FAKE_TWEETS_LABLES_MAP
-from bert_deploy.utils import filter_non_english_words
+from bert_deploy.constants import FAKE_TWEETS_ID2LABELS
+from bert_deploy.utils import filter_non_english_words, tokenize
 
 
 class FakeTweetsModel:
@@ -19,18 +19,18 @@ class FakeTweetsModel:
             Configuration of the trained model.
         """
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.tokenizer = AutoTokenizer.from_pretrained(config["BERT_MODEL"])
+        self.tokenizer = AutoTokenizer.from_pretrained(config["pretrained_model_name"])
         classifier = DistilBertForSequenceClassification.from_pretrained(
-            config["BERT_MODEL"]
+            config["pretrained_model_results"]
         )
         classifier.load_state_dict(
-            torch.load(config["PRE_TRAINED_MODEL"], map_location=self.device)
+            torch.load(config["pretrained_model_obj_path"], map_location=self.device)
         )
         classifier = classifier.eval()
         self.classifier = classifier.to(self.device)
 
         self.max_length = config["max_length"]
-        self.id2tags = FAKE_TWEETS_LABLES_MAP
+        self.id2tags = FAKE_TWEETS_ID2LABELS
 
     def predict(self, text: str) -> Optional[Dict]:
         """Predict the class for the given input with the initialized bert model.
@@ -52,15 +52,8 @@ class FakeTweetsModel:
         if not text:
             return None
 
-        encoded_text = self.tokenizer.encode_plus(
-            text,
-            max_length=self.max_length,
-            add_special_tokens=True,
-            return_token_type_ids=False,
-            pad_to_max_length=True,
-            return_attention_mask=True,
-            return_tensors="pt",
-        )
+        encoded_text = tokenize(self.tokenizer, text, self.max_length, "pt")
+
         input_ids = encoded_text["input_ids"].to(self.device)
         attention_mask = encoded_text["attention_mask"].to(self.device)
         with torch.no_grad():

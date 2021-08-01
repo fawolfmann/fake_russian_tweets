@@ -1,10 +1,14 @@
 """Constants file"""
-# COVID sentiment analysis
-FAKE_TWEETS_LABLES_MAP = {
+# Fake Tweets
+FAKE_TWEETS_LABLES2ID = {
     "authentic": 0,
     "fake": 1,
 }
 
+FAKE_TWEETS_ID2LABELS = {
+    0: "authentic",
+    1: "fake",
+}
 # Configs
 
 CSV_CONFIG_TYPE = "csv"

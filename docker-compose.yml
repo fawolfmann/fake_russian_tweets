@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./config:/code/config/:rw
+      - ../results:/code/results/:rw
+      - ../data:/code/data/:rw
     command: "uvicorn api:app --port 8000"
     ports:
-      - "8880:8000"
+      - "127.0.0.1:8888:8000"

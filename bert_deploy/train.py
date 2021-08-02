@@ -11,7 +11,7 @@ from bert_deploy.configs import read_config
 from bert_deploy.datasets.base import BaseBERTDataset
 from bert_deploy.datasets.fake_tweets import FakeTweetsDataset
 from bert_deploy.extractors.base import BaseBERTExtractPrepocTrain
-from bert_deploy.extractors.csv import FakeTweetsExtractorTrain
+from bert_deploy.extractors.tweets import FakeTweetsExtractorTrain
 from bert_deploy.utils import store_any
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def train(config_path: str, output_path: str):
     extractor: BaseBERTExtractPrepocTrain
     train_dataset: BaseBERTDataset
     val_dataset: BaseBERTDataset
-    configs = read_config(config_path)
+    configs = read_config(config_path, mode="train")
     url = ""
 
     if configs["extractor_type"] == "csv":

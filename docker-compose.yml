@@ -1,0 +1,11 @@
+version: '3'
+services:
+  bert-deployment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./config:/code/config/:rw
+    command: "uvicorn api:app --port 8000"
+    ports:
+      - "8880:8000"

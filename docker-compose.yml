@@ -10,4 +10,5 @@ services:
       - ../data:/code/data/:rw
     command: "uvicorn api:app --port 8000"
     ports:
-      - "127.0.0.1:8888:8000"
+      - "8888:8000"
+    restart: always

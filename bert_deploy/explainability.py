@@ -11,7 +11,6 @@ model = load_model()
 
 def predict_helper(text: str):
     prediction = model.predict(text)
-
     scores = (np.exp(prediction[3]).T / np.exp(prediction[3]).sum(-1)).T
     val = sp.special.logit(scores[:, 1])  # pylint: disable=no-member
 

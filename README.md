@@ -14,15 +14,23 @@ The goal is create a machine learning model to predict if a tweet is fake or is 
 For this reason its used BERT model as a text classification problem, so it is added a not fake tweets dataset from [here]().
 
 ## ML Pipeline - Training step
+In this step a DistilBert model is fine tuned for this problem.
+
 ### Data extraction and preprocessing
+At the training step its merge the fake tweets dataset and labeled as fake and the non faked tweets and extracted and labeled as authentic.
+
+Also non english words and emojis are removed from the dataset.
 
 ### Bert Tokenization
+After the extraction and preprocessing the dataset is tokenized with DistilBert model for sequence classification problem.
 
 ### Train
+For training is use PyTorch as backend of transformers and use the Trainer class.
 
 ### Store best model
+When the training is finished, is stored the best fitted model.
 
-## ML Pipeline - Training step
+## ML Pipeline - Inference step
 ### Data ingestion and preprocessing
 
 ### Bert Tokenization

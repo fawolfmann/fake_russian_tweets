@@ -64,9 +64,8 @@ class FakeTweetsModel(BaseModel):
         input_ids = encoded_text["input_ids"].to(self.device)
         attention_mask = encoded_text["attention_mask"].to(self.device)
         with torch.no_grad():
-            probabilities = F.softmax(
-                self.classifier(input_ids, attention_mask).logits, dim=1
-            )
+            raw_output = self.classifier(input_ids, attention_mask)
+            probabilities = F.softmax(raw_output.logits, dim=1)
         confidence, predicted_class = torch.max(probabilities, dim=1)
         predicted_class = predicted_class.cpu().item()
         probabilities = probabilities.flatten().cpu().numpy().tolist()
@@ -76,4 +75,5 @@ class FakeTweetsModel(BaseModel):
             self.id2tags[predicted_class],
             confidence,
             dict(zip(self.id2tags, probabilities)),
+            raw_output,
         )

@@ -5,6 +5,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel  # pylint-disable=no-name-in-module
 
+from bert_deploy.explainability import explainable_input
 from bert_deploy.predict import load_model
 from bert_deploy.prediction.tweets_loader import FakeTweetsModel
 
@@ -34,8 +35,4 @@ def predict(request: TweetRequest, model: FakeTweetsModel = Depends(load_model))
 def bert_explained(
     request: Request, text: str, model: FakeTweetsModel = Depends(load_model)
 ):
-    return HTMLResponse(shape_explained(text))
-
-
-def shape_explained(text: str):
-    return text
+    return HTMLResponse(explainable_input(text))

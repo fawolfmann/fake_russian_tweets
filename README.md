@@ -54,9 +54,9 @@ Please see this [notebook](explanation.ipynb)
 This package is wrapped on a container and use two ports, one for the API and the other for the Voila dashboard.
 
 For running with docker please execute:
-
+```
 docker-compose up --build
-
+```
 ## Tools
 
 ### Package tools

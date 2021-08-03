@@ -1,8 +1,8 @@
 {
     "trained_model": {
         "pretrained_model_name": "distilbert-base-uncased",
-        "pretrained_model_results": "./results",
-        "pretrained_model_obj_path": "./results/pytorch_model.bin",
+        "pretrained_model_results": "../results",
+        "pretrained_model_obj_path": "../results/pytorch_model.bin",
         "max_length": 512
     }
 }

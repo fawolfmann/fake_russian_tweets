@@ -10,5 +10,17 @@ services:
       - ../data:/code/data/:rw
     command: "uvicorn api:app --port 8000"
     ports:
-      - "8888:8000"
+      - "8000:8000"
+    restart: always
+
+  bert-explanation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./config:/code/config/:rw
+      - ../results:/code/results/:rw
+    command: "voila --port 9000"
+    ports:
+      - "9000:9000"
     restart: always

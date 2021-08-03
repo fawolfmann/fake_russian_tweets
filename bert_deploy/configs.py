@@ -6,7 +6,7 @@ from typing import Dict, Union
 
 from bert_deploy.constants import KNOWN_CONFIGS_TYPES, KNOWN_PROBLEM_TYPES
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 

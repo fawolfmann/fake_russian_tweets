@@ -6,12 +6,12 @@ In this repo you will find an analysis and predicition model of the fake russian
 The data is contains two parts, [tweets](http://nodeassets.nbcnews.com/russian-twitter-trolls/tweets.csv) and [users](http://nodeassets.nbcnews.com/russian-twitter-trolls/users.csv).
 
 ## Exploratory data analysis
-There is a [notebook] with all the analysis. and the conclusion on how to create a model.
+There is a [notebook](EDA.ipynb) with all the analysis and the conclusion on how to use this data.
 
 
 ## Objective
 The goal is create a machine learning model to predict if a tweet is fake or is not fake.
-For this reason its used BERT model as a text classification problem, so it is added a not fake tweets dataset from [here]().
+For this reason its used BERT model as a text classification problem, so it is added a not fake tweets dataset from [here](https://www.kaggle.com/datatattle/covid-19-nlp-text-classification?select=Corona_NLP_test.csv).
 
 ## ML Pipeline - Training step
 In this step a DistilBert model is fine tuned for this problem.
@@ -27,17 +27,35 @@ After the extraction and preprocessing the dataset is tokenized with DistilBert 
 ### Train
 For training is use PyTorch as backend of transformers and use the Trainer class.
 
-### Store best model
-When the training is finished, is stored the best fitted model.
+### Store trained model
+When the training is finished, is stored the model on the provided path.
 
 ## ML Pipeline - Inference step
+For inference it is used the same trained model, with it configuration and available through a API build with [FastAPI](https://fastapi.tiangolo.com/).
+
 ### Data ingestion and preprocessing
+The string is required to predict, it is preprocessed as the train data.
 
 ### Bert Tokenization
+After preprocessing the input is tokenized with the same tokenizer who was trained the model.
 
 ### Predict
+With the tokenized input the model predict the label for that tweet.
 
-### Show the results and plot
+### Return the results
+The predictions are return with the label and the certainty.
+
+## Explanation
+For explanation process it is use SHAP explanation package and it is create a frontend with [Voila](https://github.com/voila-dashboards/voila).
+
+Please see this [notebook](explanation.ipynb)
+
+## Deployment
+This package is wrapped on a container and use two ports, one for the API and the other for the Voila dashboard.
+
+For running with docker please execute:
+
+docker-compose up --build
 
 ## Tools
 
@@ -52,8 +70,3 @@ When the training is finished, is stored the best fitted model.
 - Poetry (dependencies and environment management)
 - CI: github workflow, nox, black, pylint, isort, pre-commit.
 - Gitflow.
-- Pytests for testing
-
-## Installation
-
-## How to use it

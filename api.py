@@ -2,10 +2,8 @@
 from typing import Dict
 
 from fastapi import Depends, FastAPI
-from fastapi.responses import HTMLResponse
 from pydantic import BaseModel  # pylint-disable=no-name-in-module
 
-from bert_deploy.explainability import explainable_input
 from bert_deploy.predict import load_model
 from bert_deploy.prediction.tweets_loader import FakeTweetsModel
 
@@ -29,8 +27,3 @@ def predict(request: TweetRequest, model: FakeTweetsModel = Depends(load_model))
     return TweetResponse(
         sentiment=sentiment, confidence=confidence, probabilities=probabilities
     )
-
-
-@app.post("/explain", response_class=HTMLResponse)
-def bert_explained(request: TweetRequest):
-    return HTMLResponse(explainable_input(request.text))

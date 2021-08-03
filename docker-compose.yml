@@ -1,0 +1,26 @@
+version: '3'
+services:
+  bert-deployment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./config:/code/config/:rw
+      - ../results:/code/results/:rw
+      - ../data:/code/data/:rw
+    command: "uvicorn api:app --port 8000"
+    ports:
+      - "8000:8000"
+    restart: always
+
+  bert-explanation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./config:/code/config/:rw
+      - ../results:/code/results/:rw
+    command: "voila --port 9000"
+    ports:
+      - "9000:9000"
+    restart: always

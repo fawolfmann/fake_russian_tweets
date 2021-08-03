@@ -1,8 +1,7 @@
 """Api entrypoint"""
 from typing import Dict
 
-from fastapi import Depends, FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import Depends, FastAPI
 from pydantic import BaseModel  # pylint-disable=no-name-in-module
 
 from bert_deploy.predict import load_model
@@ -28,14 +27,3 @@ def predict(request: TweetRequest, model: FakeTweetsModel = Depends(load_model))
     return TweetResponse(
         sentiment=sentiment, confidence=confidence, probabilities=probabilities
     )
-
-
-@app.get("/{text}", response_class=HTMLResponse)
-def bert_explained(
-    request: Request, text: str, model: FakeTweetsModel = Depends(load_model)
-):
-    return HTMLResponse(shape_explained(text))
-
-
-def shape_explained(text: str):
-    return text

@@ -43,7 +43,7 @@ def predict(text: str, config_path: str = None):
     model = load_model(config_path)
     prediction = model.predict(text)
 
-    return prediction
+    return prediction[:2]
 
 
 if __name__ == "__main__":
